@@ -1,2 +1,2 @@
 # leetcodeChallenge
-For learning algorithms with `Algorithms Fouth Edition` and practicing alogrithms with `LeetCode`
+For learning algorithms with `Algorithms Fourth Edition` and practicing alogrithms with `LeetCode`
