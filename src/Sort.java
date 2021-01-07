@@ -209,6 +209,7 @@ class Quick extends SortBase {
                 break;
             }
             exch(a, i, j);
+            // 如果此时j == i + 1, 进行下面的操作后i == j + 1，j以及j左变的变量都是小于锚点v的，下一次循环break，用lo和j交换
             i++;
             j--;
         }
