@@ -70,6 +70,16 @@ class Insertion extends SortBase {
             }
         }
     }
+
+    public void sort(String[] a, int lo, int hi, int d) {
+//        int N = a.length;
+        if (lo >= hi) return;
+        for (int i = lo + 1; i <= hi; i++) {
+            for (int j = i; j > lo && less(a[j].charAt(d), a[j - 1].charAt(d)); j--) {
+                exch(a, j, j - 1);
+            }
+        }
+    }
 }
 
 
@@ -213,7 +223,7 @@ class Quick extends SortBase {
             i++;
             j--;
         }
-        StdOut.println("lo " + lo + " hi " + hi + " i " + i+" j "+j);
+        StdOut.println("lo " + lo + " hi " + hi + " i " + i + " j " + j);
         for (Comparable abc : a) {
             StdOut.print(abc + " ");
         }
@@ -229,6 +239,76 @@ class Quick extends SortBase {
         for (String i : a) {
             StdOut.printf(i + ", ");
         }
+    }
+}
+
+class MaxPQ<Key extends Comparable<Key>> {
+
+    private Key[] pq;
+    private int N = 0;
+
+    MaxPQ(int max) {
+        pq = (Key[]) new Comparable[max + 1];
+    }
+
+//    MaxPQ(Key[] a) {
+//    }
+
+
+    boolean isEmpty() {
+        return N == 0;
+    }
+
+    int size() {
+        return N;
+    }
+
+    private boolean less(int i, int j) {
+        return pq[i].compareTo(pq[j]) < 0;
+    }
+
+    private void exch(int i, int j) {
+        Key tmp = pq[i];
+        pq[i] = pq[j];
+        pq[j] = tmp;
+    }
+
+    private void swim(int k) {
+        // 上浮
+        while (k > 1 && less(k / 2, k)) {
+            exch(k / 2, k);
+            k = k / 2;
+        }
+    }
+
+    private void sink(int k) {
+        // 下沉
+        while (2 * k <= N) {
+            int j = 2 * k;
+            if (j < N && less(j, j + 1)) j++;
+            if (!less(k, j)) break;
+            exch(k, j);
+            k = j;
+        }
+
+    }
+
+    public void insert(Key v) {
+        pq[++N] = v;
+        swim(N);
+    }
+
+    public Key delMax(Key v) {
+        Key max = pq[1];
+        exch(1, N);
+        pq[N--] = null;
+        sink(1);
+        return max;
+    }
+
+    public Key max() {
+        if (N == 0) return null;
+        return pq[1];
     }
 }
 
