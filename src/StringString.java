@@ -1,5 +1,4 @@
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 class Student {
     private int key;
@@ -188,13 +187,13 @@ class LSD {
 
 
 class MSD {
-    private static int R = 256;
-    private static final int M = 15;
+    private static int R = 26;
+    private static final int M = 0;
     private static String[] aux;
     private static Insertion insert = new Insertion();
 
     private static int charAt(String s, int d) {
-        if (d < s.length()) return s.charAt(d);
+        if (d < s.length()) return s.charAt(d) - 97;  // a的ascii码，97
         else return -1;
     }
 
@@ -205,17 +204,26 @@ class MSD {
     }
 
     private static void sort(String[] a, int lo, int hi, int d) {
+        StdOut.printf("lo :%d, hi: %d, index: %d", lo, hi, d);
+        StdOut.println();
         if (hi <= lo + M) {
             insert.sort(a, lo, hi, d);
+            StdOut.println("Use Insertion Sort, return");
             return;
         }
         int[] count = new int[R + 2];
         for (int i = lo; i <= hi; i++) {
             count[charAt(a[i], d) + 2]++;
         }
+        StdOut.println("统计频率");
+        printArray(count);
+
         for (int r = 0; r < R + 1; r++) {
             count[r + 1] += count[r];
         }
+
+        StdOut.println("计算起始索引");
+        printArray(count);
 
         for (int i = lo; i <= hi; i++) {
             aux[count[charAt(a[i], d) + 1]++] = a[i];
@@ -226,6 +234,32 @@ class MSD {
         }
         for (int r = 0; r < R; r++) {
             sort(a, lo + count[r], lo + count[r + 1] - 1, d + 1);
+        }
+    }
+
+    public static void main(String[] args) {
+        String[] tests = {"she", "sells", "seashells", "by", "the", "sea", "shore", "the", "shells", "she", "sells", "are", "surely", "seashells"};
+        printArray(tests);
+        sort(tests);
+        printArray(tests);
+
+    }
+
+    public static <T> void printArray(T[] a) {
+        int N = a.length;
+        for (int i = 0; i < N; i++) {
+            StdOut.print(a[i]);
+            if (i < N - 1) StdOut.print(", ");
+            else StdOut.println();
+        }
+    }
+
+    public static void printArray(int[] a) {
+        int N = a.length;
+        for (int i = 0; i < N; i++) {
+            StdOut.print(a[i]);
+            if (i < N - 1) StdOut.print(", ");
+            else StdOut.println();
         }
     }
 }
