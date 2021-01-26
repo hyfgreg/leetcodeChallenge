@@ -63,7 +63,7 @@ class TreeNode {
 
     public static TreeNode buildTree(String[] nums) {
         if (nums.length == 0) return null;
-        Queue<TreeNode> q = new LinkedList<>();
+        LinkedList<TreeNode> q = new LinkedList<>();
         String val = nums[0];
         TreeNode root = new TreeNode(Integer.parseInt(val));
         q.offer(root);
@@ -138,7 +138,7 @@ public class TreeNeverEnds {
 
     public static TreeNode PopulatingNextRightPointersInEachNode116(TreeNode root) {
         if (root == null) return root;
-        Queue<TreeNode> q = new LinkedList<>();
+        LinkedList<TreeNode> q = new LinkedList<>();
         q.add(root);
         while (q.size() > 0) {
             int sz = q.size();
@@ -339,3 +339,4 @@ class ConvertBSTToGreaterTree538 {
         traverse(root.left);
     }
 }
+
