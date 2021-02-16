@@ -1,5 +1,7 @@
 import javax.swing.plaf.SplitPaneUI;
 import java.util.Arrays;
+import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.StdOut;
 
 class SortBase {
     public void sort(Comparable[] a) throws NoSuchMethodException {

@@ -1,3 +1,4 @@
+import edu.princeton.cs.algs4.StdOut;
 /******************************************************************************
  *  Compilation:  javac Alphabet.java
  *  Execution:    java Alphabet
