@@ -1,135 +1,100 @@
-import edu.princeton.cs.algs4.Bag;
-import edu.princeton.cs.algs4.In;
-import edu.princeton.cs.algs4.IndexMinPQ;
-import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.*;
+import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 
 public class ShortestPath {
 }
 
-class DirectedEdge {
-    private final int v;
-    private final int w;
-    private final double weight;
+class GenericSP {
+    private double[] distTo;
+    private DirectedEdge[] edgeTo;
+    private Queue<Integer> q;
 
-    public DirectedEdge(int v, int w, double weight) {
-        this.v = v;
-        this.w = w;
-        this.weight = weight;
-    }
+    public GenericSP(EdgeWeightedDigraph G, int s) {
+        distTo = new double[G.V()];
+        edgeTo = new DirectedEdge[G.V()];
+        q = new Queue<>();
 
-    public double weight() {
-        return weight;
-    }
-
-    public int from() {
-        return v;
-    }
-
-    public int to() {
-        return w;
-    }
-
-    public String toString() {
-        return String.format("%d->%d %.2f", v, w, weight);
-    }
-}
-
-class EdgeWeightedDigraph {
-    private final int V;
-    private int E;
-    private Bag<DirectedEdge>[] adj;
-
-    public EdgeWeightedDigraph(int V) {
-        this.V = V;
-        this.E = 0;
-        adj = (Bag<DirectedEdge>[]) new Bag[V];
-
-        for (int v = 0; v < V; v++) {
-            adj[v] = new Bag<DirectedEdge>();
+        for (int v = 0; v < G.V(); v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        distTo[0] = 0.0;
+        q.enqueue(0);
+        // 看上去就是个宽度优先搜索
+        while (!q.isEmpty()) {
+            int v = q.dequeue();
+            relax(G, v);
         }
     }
 
-    public EdgeWeightedDigraph(In in) {
-        this(in.readInt());
-        int E = in.readInt();
-        for (int i = 0; i < E; ++i) {
-            int v = in.readInt();
-            int w = in.readInt();
-            double weight = in.readDouble();
-            DirectedEdge e = new DirectedEdge(v, w, weight);
-            addEdge(e);
+    private void relax(EdgeWeightedDigraph G, int v) {
+        for (DirectedEdge e : G.adj(v)) {
+            int w = e.to();
+            if (distTo[w] > distTo[v] + e.weight()) {
+                distTo[w] = distTo[v] + e.weight();
+                edgeTo[w] = e;
+                q.enqueue(w);
+            }
         }
     }
 
-    public int V() {
-        return V;
+    public Iterable<DirectedEdge> pathTo(int v) {
+        if (!hasPathTo(v)) return null;
+        Stack<DirectedEdge> st = new Stack<>();
+        for (DirectedEdge e = edgeTo[v]; e != null; e = edgeTo[e.from()]) {
+            st.push(e);
+        }
+        return st;
     }
 
-    public int E() {
-        return E;
+    public boolean hasPathTo(int v) {
+        return distTo[v] < Double.POSITIVE_INFINITY;
     }
 
-    public void addEdge(DirectedEdge e) {
-        adj[e.from()].add(e);
-        E++;
+    public double distTo(int v) {
+        return distTo[v];
     }
 
-    public Iterable<DirectedEdge> adj(int v) {
-        return adj[v];
-    }
-
-    public Iterable<DirectedEdge> edges() {
-        Bag<DirectedEdge> bag = new Bag<>();
-        for (int v = 0; v < V; v++)
-            for (DirectedEdge e : adj[v])
-                bag.add(e);
-        return bag;
-    }
-
-    public String toString() {
-        StringBuilder s = new StringBuilder("Vertices " + V + " Edges " + E + "\n");
-        for (int v = 0; v < V; v++)
-            for (DirectedEdge e : adj[v])
-                s.append(e.from()).append(" ").append(e.to()).append(" ").append(e.weight()).append("\n");
-        return s.toString();
+    public DirectedEdge edgeTo(int v) {
+        return edgeTo[v];
     }
 
     public static void main(String[] args) {
-        In in = new In(args[0]);
-        EdgeWeightedDigraph ewd = new EdgeWeightedDigraph(in);
-        StdOut.println(ewd);
-    }
-}
-
-class SP {
-    private DirectedEdge[] edgeTo;
-    private double[] distTo;
-
-    private void relax(DirectedEdge e) {
-        int v = e.from(), w = e.to();
-        if (distTo[w] > distTo[v] + e.weight()) {
-            distTo[w] = distTo[v] + e.weight();
-            edgeTo[w] = e;
+        EdgeWeightedDigraph G;
+        G = new EdgeWeightedDigraph(new In(args[0]));
+        int s = Integer.parseInt(args[1]);
+        GenericSP sp = new GenericSP(G, s);
+        StdOut.println(G);
+        for (int t = 0; t < G.V(); t++) {
+            StdOut.print(s + " to " + t);
+            StdOut.printf(" (%4.2f): ", sp.distTo(t));
+            if (sp.hasPathTo(t))
+                for (DirectedEdge e : sp.pathTo(t))
+                    StdOut.print(e + " ");
+            StdOut.println();
         }
     }
 }
 
 class DijkstraSP {
-    private DirectedEdge[] edgeTo;
     private double[] distTo;
+    private DirectedEdge[] edgeTo;
     private IndexMinPQ<Double> pq;
 
     public DijkstraSP(EdgeWeightedDigraph G, int s) {
-        edgeTo = new DirectedEdge[G.V()];
         distTo = new double[G.V()];
+        edgeTo = new DirectedEdge[G.V()];
         pq = new IndexMinPQ<>(G.V());
-        for (int v = 0; v < G.V(); v++)
-            distTo[v] = Double.POSITIVE_INFINITY;
+
+        for (int i = 0; i < G.V(); i++) {
+            distTo[i] = Double.POSITIVE_INFINITY;
+        }
         distTo[0] = 0.0;
         pq.insert(0, 0.0);
-        while (!pq.isEmpty())
+        while (!pq.isEmpty()) {
             relax(G, pq.delMin());
-
+        }
     }
 
     private void relax(EdgeWeightedDigraph G, int v) {
@@ -142,6 +107,42 @@ class DijkstraSP {
                 else pq.insert(w, distTo[w]);
             }
         }
+    }
 
+    public Iterable<DirectedEdge> pathTo(int v) {
+        if (!hasPathTo(v)) return null;
+        Stack<DirectedEdge> st = new Stack<>();
+        for (DirectedEdge e = edgeTo[v]; e != null; e = edgeTo[e.from()]) {
+            st.push(e);
+        }
+        return st;
+    }
+
+    public boolean hasPathTo(int v) {
+        return distTo[v] < Double.POSITIVE_INFINITY;
+    }
+
+    public double distTo(int v) {
+        return distTo[v];
+    }
+
+    public DirectedEdge edgeTo(int v) {
+        return edgeTo[v];
+    }
+
+    public static void main(String[] args) {
+        EdgeWeightedDigraph G;
+        G = new EdgeWeightedDigraph(new In(args[0]));
+        int s = Integer.parseInt(args[1]);
+        DijkstraSP sp = new DijkstraSP(G, s);
+        StdOut.println(G);
+        for (int t = 0; t < G.V(); t++) {
+            StdOut.print(s + " to " + t);
+            StdOut.printf(" (%4.2f): ", sp.distTo(t));
+            if (sp.hasPathTo(t))
+                for (DirectedEdge e : sp.pathTo(t))
+                    StdOut.print(e + " ");
+            StdOut.println();
+        }
     }
 }

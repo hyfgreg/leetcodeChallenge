@@ -183,3 +183,57 @@ class LazyPrimMST {
         StdOut.println(mst.weight());
     }
 }
+
+class PrimeMST {
+    private Edge[] edgeTo;
+    private double[] distTo;
+    private boolean[] marked;
+    private IndexMinPQ<Double> pq;
+
+    public PrimeMST(EdgeWeightedGraph G) {
+        edgeTo = new Edge[G.V()];
+        distTo = new double[G.V()];
+        marked = new boolean[G.V()];
+        for (int v = 0; v < G.V(); v++) {
+            distTo[v] = Double.POSITIVE_INFINITY;
+        }
+        pq = new IndexMinPQ<>(G.V());
+        distTo[0] = 0.0;
+        pq.insert(0, 0.0);
+        while (!pq.isEmpty()) {
+            visit(G, pq.delMin());
+        }
+    }
+
+    private void visit(EdgeWeightedGraph G, int v) {
+        marked[v] = true;
+        for (Edge e : G.adj(v)) {
+            int w = e.other(v);
+            if (marked[w]) continue;
+            if (e.weight() < distTo[w]) {
+                edgeTo[w] = e;
+                distTo[w] = e.weight();
+                if (pq.contains(w)) pq.changeKey(w, distTo[w]);
+                else pq.insert(w, distTo[w]);
+            }
+        }
+    }
+}
+
+class KruskalMST {
+    private Queue<Edge> mst;
+
+    public KruskalMST(EdgeWeightedGraph G) {
+        mst = new Queue<>();
+        MinPQ<Edge> pq = new MinPQ<>();
+        for (Edge e : G.edges()) pq.insert(e);
+        UF uf = new UF(G.V());
+        while (!pq.isEmpty() && mst.size() < G.V() - 1) {
+            Edge e = pq.delMin();
+            int v = e.either(), w = e.other(v);
+            if (uf.find(v) == uf.find(w)) continue;
+            uf.union(v, w);
+            mst.enqueue(e);
+        }
+    }
+}
